@@ -25,6 +25,7 @@ class Worker(BasePerson):
                  work: LocationID,
                  work_time: Optional[SimTimeTuple] = None,
                  regulation_compliance_prob: float = 1.0,
+                 working_status: str = "WFH",
                  init_state: Optional[PersonState] = None):
         """
         :param person_id: PersonID instance
@@ -36,6 +37,7 @@ class Worker(BasePerson):
         """
         assert person_id.age >= 18, "Workers's age must be >= 18"
         self._work = work
+        self.working_status = working_status
         self._work_time = work_time or SimTimeTuple(hours=tuple(range(9, 18)), week_days=tuple(range(0, 5)))
 
         self._routines = []

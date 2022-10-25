@@ -3,6 +3,7 @@ from typing import List, cast
 from uuid import uuid4
 
 import numpy as np
+from pandemic_simulator.environment.interfaces.sim_time import SimTimeTuple
 
 from .interfaces import globals, Risk, Person, PersonID, PersonState, BusinessBaseLocation
 from .job_counselor import JobCounselor
@@ -142,15 +143,37 @@ def make_population(sim_config: PandemicSimConfig) -> List[Person]:
 
     work_ids = registry.location_ids_of_type(BusinessBaseLocation)
     assert len(work_ids) > 0, 'no business locations found!'
+    job_counselor = JobCounselor(sim_config.location_configs)
     for home, age in adult_homes_ages:
-        job_counselor = JobCounselor(sim_config.location_configs)
         work_package = job_counselor.next_available_work()
         assert work_package, 'Not enough available jobs, increase the capacity of certain businesses'
+        wfh_ratio = 0.5
+        hybrid_ratio = 0.5
+        inperson_ratio = 1 - wfh_ratio - hybrid_ratio
+        rand = numpy_rng.rand()
+        if work_package.work.name.split('_')[0] == "Office":
+            if rand <= wfh_ratio:
+                working_status = "WFH"
+            elif rand <= wfh_ratio + hybrid_ratio:
+                working_status = "Hybrid"
+            else:
+                working_status = "InPerson"
+        else:
+            working_status = "InPerson"
+        work_time = work_package.work_time
+        if working_status == "WFH":
+            week_days = tuple([])
+        elif working_status == "Hybrid":
+            week_days = tuple(sorted(numpy_rng.choice(work_time.week_days, 3, replace=False)))
+        else:
+            week_days = work_time.week_days
+        work_time = SimTimeTuple(hours=work_time.hours, week_days=week_days, days=work_time.days)
         persons.append(Worker(person_id=PersonID(f'worker_{str(uuid4())}', age),
                               home=home,
                               work=work_package.work,
-                              work_time=work_package.work_time,
+                              work_time=work_time,
                               regulation_compliance_prob=sim_config.regulation_compliance_prob,
+                              working_status=working_status,
                               init_state=PersonState(current_location=home, risk=infection_risk(age))))
 
     for home, age in non_nursing_homes_ages:
