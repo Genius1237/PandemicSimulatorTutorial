@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, Mapping, Tuple, Type
 
 from .ids import LocationID, PersonID
-from .infection_model import InfectionSummary
+from .infection_model import InfectionSummary, WorkerClass
 from .location import LocationSummary
 from .location_states import LocationState
 from .pandemic_testing import GlobalTestingState
@@ -29,6 +29,9 @@ class PandemicSimState:
 
     global_infection_summary: Dict[InfectionSummary, int]
     """Specifies the number of people with each infection summary"""
+
+    class_global_infection_summary: Dict[WorkerClass, int]
+    """Specifies the number of people of different classes with infection"""
 
     global_testing_state: GlobalTestingState
     """Specifies the number of people with each infection summary after testing"""

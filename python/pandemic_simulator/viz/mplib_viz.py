@@ -62,10 +62,12 @@ class BaseMatplotLibViz(PandemicViz):
         self._ax_i = 0
 
         self._gis = []
+        self._class_gis = []
         self._gts = []
         self._stages = []
 
         self._gis_legend = []
+        self._class_gis_legend = []
 
         plt.rc('axes', prop_cycle=cycler(color=inf_colors))
 
@@ -77,8 +79,11 @@ class BaseMatplotLibViz(PandemicViz):
         if len(self._gis_legend) == 0:
             self._gis_legend = list(obs.infection_summary_labels)
             self._critical_index = self._gis_legend.index(InfectionSummary.CRITICAL.value)
+        if len(self._class_gis_legend) == 0:
+            self._class_gis_legend = list(obs.class_infection_summary_labels)
 
         self._gis.append(obs.global_infection_summary)
+        self._class_gis.append(obs.class_global_infection_summary)
         self._gts.append(obs.global_testing_summary)
         self._stages.append(obs.stage)
 
@@ -102,6 +107,17 @@ class BaseMatplotLibViz(PandemicViz):
         ax.legend(self._gis_legend, loc=1)
         ax.set_ylim(-0.1, self._num_persons + 1)
         ax.set_title('Global Infection Summary')
+        ax.set_xlabel('time (days)')
+        ax.set_ylabel('persons')
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    def plot_class_gis(self, ax: Optional[Axes] = None, **kwargs: Any) -> None:
+        ax = ax or plt.gca()
+        class_gis = np.vstack(self._class_gis).squeeze()
+        ax.plot(class_gis)
+        ax.legend(self._class_gis_legend, loc=1)
+        ax.set_ylim(-0.1, self._num_persons + 1)
+        ax.set_title('Classwise Infection Summary')
         ax.set_xlabel('time (days)')
         ax.set_ylabel('persons')
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))

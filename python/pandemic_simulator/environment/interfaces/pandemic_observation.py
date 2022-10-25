@@ -5,7 +5,7 @@ from typing import Sequence, Type, cast, Optional
 import numpy as np
 
 from .ids import LocationID
-from .infection_model import InfectionSummary, sorted_infection_summary
+from .infection_model import InfectionSummary, WorkerClass, sorted_infection_summary, sorted_class_infection_summary
 from .location_states import NonEssentialBusinessLocationState
 from .sim_state import PandemicSimState
 
@@ -18,6 +18,7 @@ class PandemicObservation:
     used by the reinforcement learning interface."""
 
     global_infection_summary: np.ndarray
+    class_global_infection_summary: np.ndarray
     global_testing_summary: np.ndarray
     stage: np.ndarray
     infection_above_threshold: np.ndarray
@@ -37,6 +38,7 @@ class PandemicObservation:
         :return: an empty PandemicObservation instance
         """
         return PandemicObservation(global_infection_summary=np.zeros((history_size, 1, len(InfectionSummary))),
+                                   class_global_infection_summary=np.zeros((history_size, 1, len(WorkerClass))),
                                    global_testing_summary=np.zeros((history_size, 1, len(InfectionSummary))),
                                    stage=np.zeros((history_size, 1, 1)),
                                    infection_above_threshold=np.zeros((history_size, 1, 1)),
@@ -66,6 +68,9 @@ class PandemicObservation:
         gis = np.asarray([sim_state.global_infection_summary[k] for k in sorted_infection_summary])[None, None, ...]
         self.global_infection_summary[hist_index, 0] = gis
 
+        class_gis = np.asarray([sim_state.class_global_infection_summary[k] for k in sorted_class_infection_summary])[None, None, ...]
+        self.class_global_infection_summary[hist_index, 0] = class_gis
+
         gts = np.asarray([sim_state.global_testing_state.summary[k] for k in sorted_infection_summary])[None, None, ...]
         self.global_testing_summary[hist_index, 0] = gts
 
@@ -79,3 +84,8 @@ class PandemicObservation:
     def infection_summary_labels(self) -> Sequence[str]:
         """Return the label for each index in global_infection(or testing)_summary observation entry"""
         return [k.value for k in sorted_infection_summary]
+    
+    @property
+    def class_infection_summary_labels(self) -> Sequence[str]:
+        """Return the label for each index in global_class_infection(or testing)_summary observation entry"""
+        return [k.value for k in sorted_class_infection_summary]

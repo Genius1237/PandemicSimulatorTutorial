@@ -5,7 +5,7 @@ from uuid import uuid4
 import numpy as np
 from pandemic_simulator.environment.interfaces.sim_time import SimTimeTuple
 
-from .interfaces import globals, Risk, Person, PersonID, PersonState, BusinessBaseLocation
+from .interfaces import globals, Risk, Person, PersonID, PersonState, BusinessBaseLocation, WorkerClass
 from .job_counselor import JobCounselor
 from .location import Home, School
 from .person import Retired, Worker, Minor
@@ -147,23 +147,23 @@ def make_population(sim_config: PandemicSimConfig) -> List[Person]:
     for home, age in adult_homes_ages:
         work_package = job_counselor.next_available_work()
         assert work_package, 'Not enough available jobs, increase the capacity of certain businesses'
-        wfh_ratio = 0.5
-        hybrid_ratio = 0.5
+        wfh_ratio = 0.0
+        hybrid_ratio = 0.0
         inperson_ratio = 1 - wfh_ratio - hybrid_ratio
         rand = numpy_rng.rand()
         if work_package.work.name.split('_')[0] == "Office":
             if rand <= wfh_ratio:
-                working_status = "WFH"
+                working_status = WorkerClass.WFH
             elif rand <= wfh_ratio + hybrid_ratio:
-                working_status = "Hybrid"
+                working_status = WorkerClass.HYBRID
             else:
-                working_status = "InPerson"
+                working_status = WorkerClass.INPERSON
         else:
-            working_status = "InPerson"
+            working_status = WorkerClass.INPERSON
         work_time = work_package.work_time
-        if working_status == "WFH":
+        if working_status == WorkerClass.WFH:
             week_days = tuple([])
-        elif working_status == "Hybrid":
+        elif working_status == WorkerClass.HYBRID:
             week_days = tuple(sorted(numpy_rng.choice(work_time.week_days, 3, replace=False)))
         else:
             week_days = work_time.week_days

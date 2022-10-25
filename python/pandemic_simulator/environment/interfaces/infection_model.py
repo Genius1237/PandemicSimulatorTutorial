@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-__all__ = ['IndividualInfectionState', 'InfectionModel', 'InfectionSummary', 'Risk', 'sorted_infection_summary']
+__all__ = ['IndividualInfectionState', 'InfectionModel', 'InfectionSummary', 'WorkerClass', 'Risk', 'sorted_infection_summary', 'sorted_class_infection_summary']
 
 
 class InfectionSummary(Enum):
@@ -16,7 +16,14 @@ class InfectionSummary(Enum):
     DEAD = 'dead (D)'
 
 
+class WorkerClass(Enum):
+    WFH = 'WFH'
+    HYBRID = 'Hybrid'
+    INPERSON = 'InPerson'
+
+
 sorted_infection_summary = sorted(InfectionSummary, key=lambda x: x.value)
+sorted_class_infection_summary = sorted(WorkerClass, key=lambda x: x.value)
 
 
 class Risk(Enum):
