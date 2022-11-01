@@ -147,9 +147,8 @@ def make_population(sim_config: PandemicSimConfig) -> List[Person]:
     for home, age in adult_homes_ages:
         work_package = job_counselor.next_available_work()
         assert work_package, 'Not enough available jobs, increase the capacity of certain businesses'
-        wfh_ratio = 0.0
-        hybrid_ratio = 0.0
-        inperson_ratio = 1 - wfh_ratio - hybrid_ratio
+        wfh_ratio = 0.20
+        hybrid_ratio = 0.50
         rand = numpy_rng.rand()
         if work_package.work.name.split('_')[0] == "Office":
             if rand <= wfh_ratio:

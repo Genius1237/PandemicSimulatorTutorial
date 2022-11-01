@@ -112,6 +112,7 @@ class PandemicSim:
             global_testing_state=GlobalTestingState(summary={s: len(persons) if s == InfectionSummary.NONE else 0
                                                              for s in sorted_infection_summary},
                                                     num_tests=0),
+            class_global_testing_state={s: 0 for s in sorted_class_infection_summary},
             global_location_summary=self._registry.global_location_summary,
             sim_time=SimTime(),
             regulation_stage=0,
@@ -235,7 +236,7 @@ class PandemicSim:
                 person1_state.not_infection_probability_history.append((person1_state.current_location,
                                                                         person1_state.not_infection_probability))
 
-    def _update_global_testing_state(self, new_result: PandemicTestResult, prev_result: PandemicTestResult) -> None:
+    def _update_global_testing_state(self, person: Person, new_result: PandemicTestResult, prev_result: PandemicTestResult) -> None:
         if new_result == prev_result:
             # nothing to update
             return
@@ -246,6 +247,8 @@ class PandemicSim:
                 InfectionSummary.INFECTED if prev_result == PandemicTestResult.POSITIVE else InfectionSummary.NONE
             self._state.global_testing_state.summary[InfectionSummary.DEAD] += 1
             self._state.global_testing_state.summary[prv] -= 1
+            if type(person) == Worker and prv.name == 'INFECTED':
+                self._state.class_global_testing_state[person.working_status] -= 1
 
         # person tested positive/critical
         elif (new_result in {PandemicTestResult.POSITIVE, PandemicTestResult.CRITICAL} and
@@ -253,7 +256,11 @@ class PandemicSim:
             new = InfectionSummary.CRITICAL if new_result == PandemicTestResult.CRITICAL else InfectionSummary.INFECTED
             prv = InfectionSummary.INFECTED if prev_result == PandemicTestResult.POSITIVE else InfectionSummary.NONE
             self._state.global_testing_state.summary[new] += 1
+            if type(person) == Worker and new.name == 'INFECTED':
+                self._state.class_global_testing_state[person.working_status] += 1
             self._state.global_testing_state.summary[prv] -= 1
+            if type(person) == Worker and prv.name == 'INFECTED':
+                self._state.class_global_testing_state[person.working_status] -= 1
             self._state.global_testing_state.num_tests += 1  # update number of tests
 
         # person tested negative after having tested as infected before
@@ -262,6 +269,8 @@ class PandemicSim:
             prv = InfectionSummary.CRITICAL if prev_result == PandemicTestResult.CRITICAL else InfectionSummary.INFECTED
             self._state.global_testing_state.summary[InfectionSummary.RECOVERED] += 1
             self._state.global_testing_state.summary[prv] -= 1
+            if type(person) == Worker and prv.name == 'INFECTED':
+                self._state.class_global_testing_state[person.working_status] -= 1
             self._state.global_testing_state.num_tests += 1  # update number of tests
 
     def step(self) -> None:
@@ -313,7 +322,7 @@ class PandemicSim:
                 # test the person for infection
                 if self._pandemic_testing.admit_person(person.state):
                     new_test_result = self._pandemic_testing.test_person(person.state)
-                    self._update_global_testing_state(new_test_result, person.state.test_result)
+                    self._update_global_testing_state(person, new_test_result, person.state.test_result)
                     person.state.test_result = new_test_result
 
             self._state.global_infection_summary = global_infection_summary
@@ -408,6 +417,7 @@ class PandemicSim:
             global_testing_state=GlobalTestingState(summary={s: num_persons if s == InfectionSummary.NONE else 0
                                                              for s in sorted_infection_summary},
                                                     num_tests=0),
+            class_global_testing_state={s: 0 for s in sorted_class_infection_summary},
             sim_time=SimTime(),
             regulation_stage=0,
             infection_above_threshold=False,

@@ -64,6 +64,7 @@ class BaseMatplotLibViz(PandemicViz):
         self._gis = []
         self._class_gis = []
         self._gts = []
+        self._class_gts = []
         self._stages = []
 
         self._gis_legend = []
@@ -85,6 +86,7 @@ class BaseMatplotLibViz(PandemicViz):
         self._gis.append(obs.global_infection_summary)
         self._class_gis.append(obs.class_global_infection_summary)
         self._gts.append(obs.global_testing_summary)
+        self._class_gts.append(obs.class_global_testing_summary)
         self._stages.append(obs.stage)
 
     def record_state(self, state: PandemicSimState) -> None:
@@ -129,6 +131,17 @@ class BaseMatplotLibViz(PandemicViz):
         ax.legend(self._gis_legend, loc=1)
         ax.set_ylim(-0.1, self._num_persons + 1)
         ax.set_title('Global Testing Summary')
+        ax.set_xlabel('time (days)')
+        ax.set_ylabel('persons')
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    def plot_class_gts(self, ax: Optional[Axes] = None, **kwargs: Any) -> None:
+        ax = ax or plt.gca()
+        class_gts = np.vstack(self._class_gts).squeeze()
+        ax.plot(class_gts)
+        ax.legend(self._class_gis_legend, loc=1)
+        ax.set_ylim(-0.1, self._num_persons + 1)
+        ax.set_title('Classwise Testing Summary')
         ax.set_xlabel('time (days)')
         ax.set_ylabel('persons')
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))

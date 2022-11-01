@@ -36,6 +36,9 @@ class PandemicSimState:
     global_testing_state: GlobalTestingState
     """Specifies the number of people with each infection summary after testing"""
 
+    class_global_testing_state: Dict[WorkerClass, int]
+    """Specifies the number of people of different classes with infection after testing"""
+
     global_location_summary: Mapping[Tuple[str, str], LocationSummary]
     """A mapping that holds summary statistics (usually cumulative) for each location and person type tuple -
     ((Office, Worker), (School, Minor), etc.)"""

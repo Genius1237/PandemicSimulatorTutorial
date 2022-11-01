@@ -20,6 +20,7 @@ class PandemicObservation:
     global_infection_summary: np.ndarray
     class_global_infection_summary: np.ndarray
     global_testing_summary: np.ndarray
+    class_global_testing_summary: np.ndarray
     stage: np.ndarray
     infection_above_threshold: np.ndarray
     time_day: np.ndarray
@@ -40,6 +41,7 @@ class PandemicObservation:
         return PandemicObservation(global_infection_summary=np.zeros((history_size, 1, len(InfectionSummary))),
                                    class_global_infection_summary=np.zeros((history_size, 1, len(WorkerClass))),
                                    global_testing_summary=np.zeros((history_size, 1, len(InfectionSummary))),
+                                   class_global_testing_summary=np.zeros((history_size, 1, len(WorkerClass))),
                                    stage=np.zeros((history_size, 1, 1)),
                                    infection_above_threshold=np.zeros((history_size, 1, 1)),
                                    time_day=np.zeros((history_size, 1, 1)),
@@ -73,6 +75,9 @@ class PandemicObservation:
 
         gts = np.asarray([sim_state.global_testing_state.summary[k] for k in sorted_infection_summary])[None, None, ...]
         self.global_testing_summary[hist_index, 0] = gts
+
+        class_gts = np.asarray([sim_state.class_global_testing_state[k] for k in sorted_class_infection_summary])[None, None, ...]
+        self.class_global_testing_summary[hist_index, 0] = class_gts
 
         self.stage[hist_index, 0] = sim_state.regulation_stage
 
