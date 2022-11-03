@@ -180,12 +180,13 @@ class PandemicGymEnv3Act(gym.ActionWrapper):
         self.max_days = 120
         self.obs_norm_bds = {
             "global_infection_summary": [0, 1000], # obs min, obs max
+            "class_global_infection_summary": [0, 1000],
             # "global_testing_summary": [0, 1000],
             "stage": [0, 4],
             "infection_above_threshold": [0, 1],
             "time_day": [0, self.max_days],
         }
-        self.observation_space = gym.spaces.MultiDiscrete(np.ones(shape=(1, 1, 5+1+1+1)), 
+        self.observation_space = gym.spaces.MultiDiscrete(np.ones(shape=(1, 1, 5+3+1+1+1)), 
                                                           dtype=np.float32)
         # note that the action space for the learner is {0, 1, 2}; different than the action space of the PandemicGymEnv
         self.action_space = gym.spaces.Discrete(3)
@@ -210,6 +211,7 @@ class PandemicGymEnv3Act(gym.ActionWrapper):
 
     def flatten_obs(self, obs:PandemicObservation) -> np.ndarray:
         return np.concatenate([norm_obs(obs.global_infection_summary, *self.obs_norm_bds["global_infection_summary"]),
+                               norm_obs(obs.class_global_infection_summary, *self.obs_norm_bds["class_global_infection_summary"]),
                                # norm_obs(obs.global_testing_summary, *self.obs_norm_bds["global_testing_summary"]),
                                norm_obs(obs.stage, *self.obs_norm_bds["stage"]),
                                norm_obs(obs.infection_above_threshold, *self.obs_norm_bds["infection_above_threshold"]),
