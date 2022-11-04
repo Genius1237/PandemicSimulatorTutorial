@@ -50,6 +50,12 @@ class PandemicSimConfig:
     person_routine_assignment: Optional[PersonRoutineAssignment] = None
     """Person routine assignment instance"""
 
+    wfh_ratio: float = 0.01
+    """WFH Ratio"""
+
+    hybrid_ratio: float = 0.01
+    """Hybrid Ratio"""
+
     def __post_init__(self) -> None:
         for config in self.location_configs:
             if issubclass(config.location_type, Hospital):

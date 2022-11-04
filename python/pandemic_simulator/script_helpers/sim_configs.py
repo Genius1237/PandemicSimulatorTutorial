@@ -58,7 +58,9 @@ medium_town_config = PandemicSimConfig(
         LocationConfig(Restaurant, num=4, num_assignees=6, state_opts=dict(visitor_capacity=30)),
         LocationConfig(Bar, num=4, num_assignees=3, state_opts=dict(visitor_capacity=30))
     ],
-    person_routine_assignment=DefaultPersonRoutineAssignment())
+    person_routine_assignment=DefaultPersonRoutineAssignment(),
+    wfh_ratio=0.20,
+    hybrid_ratio=0.50)
 
 small_town_config = PandemicSimConfig(
     num_persons=1000,
@@ -73,7 +75,9 @@ small_town_config = PandemicSimConfig(
         LocationConfig(Restaurant, num=2, num_assignees=6, state_opts=dict(visitor_capacity=30)),
         LocationConfig(Bar, num=2, num_assignees=5, state_opts=dict(visitor_capacity=30)),
     ],
-    person_routine_assignment=DefaultPersonRoutineAssignment())
+    person_routine_assignment=DefaultPersonRoutineAssignment(),
+    wfh_ratio=0.10,
+    hybrid_ratio=0.30)
 
 tiny_town_config = PandemicSimConfig(
     num_persons=500,
